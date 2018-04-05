@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Android",
+            "intelliSenseMode": "clang-x64",
+            "compileCommands": "${workspaceFolder}/out/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 3
+}
