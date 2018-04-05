@@ -10,14 +10,12 @@ import sys
 RULE_PATTERN = re.compile(r'^\s*rule\s+(\S+)$')
 COMMAND_PATTERN = re.compile(r'^\s*command\s*=\s*(.+)$')
 BUILD_PATTERN = re.compile(r'^\s*build\s+.*:\s*(?P<rule>\S+)\s+(?P<file>\S+)')
-CAT_PATTERN = re.compile(r'\\\$\$\(\s*cat\s+(\S+)\s*\)')
+CAT_PATTERN = re.compile(r'\\\$\$\(\s*cat\s+([^\)]+)\)')
 SUBCOMMAND_PATTERN = re.compile(r'\([^\)]*\)')
-CCACHE_PATTERN = re.compile(r'^\s*\S*/ccache\s+(.*)$')
-CLANG_PATTERN = re.compile(r'^\s*\S*/(?:clang|clang\+\+)\s+(.*)$')
 
 def cat_expand(match):
     try:
-        with open(match.group(1)) as cat_file:
+        with open(match.group(1).strip()) as cat_file:
             return cat_file.read().replace('\n', ' ').strip()
     except IOError as ex:
         print(ex, file=sys.stderr)
@@ -52,11 +50,19 @@ with open(args.ninja_file) as ninja_file:
                 if subcommands:
                     command = subcommands[0][1:-1]
 
-                ccache_match = CCACHE_PATTERN.match(command)
-                if ccache_match:
-                    command = ccache_match.group(1)
+                while command:
+                    first_space = command.find(' ', 1)
+                    if (first_space == -1):
+                        first_space = len(command)
 
-                if not CLANG_PATTERN.match(command):
+                    if command[0:first_space].endswith('/clang') or command[0:first_space].endswith('/clang++'):
+                        break
+
+                    command = command[first_space:]
+
+                command = command.strip()
+
+                if not command:
                     continue
 
                 compdb.append({
