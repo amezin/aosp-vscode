@@ -51,7 +51,11 @@ def parse_command(command):
 
 
 parser = argparse.ArgumentParser(description='Generate compile_commands.json for AOSP')
-parser.add_argument('ninja_file')
+target_product = os.getenv('TARGET_PRODUCT')
+if target_product:
+    parser.add_argument('ninja_file', nargs='?', default='out/build-{}.ninja'.format(target_product))
+else:
+    parser.add_argument('ninja_file')
 args = parser.parse_args()
 
 with open(args.ninja_file) as ninja_file:
