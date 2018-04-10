@@ -16,14 +16,24 @@ SUBCOMMAND_PATTERN = re.compile(r'\(([^\)]*)\)')
 rules = {}
 compdb = []
 directory = os.path.abspath(os.getcwd())
+cat_cache = {}
 
 
 def cat_expand(match):
+    file_name = match.group(1).strip()
+
+    if file_name in cat_cache:
+        return cat_cache[file_name]
+
     try:
-        with open(match.group(1).strip()) as cat_file:
-            return cat_file.read().replace('\n', ' ').strip()
+        with open(file_name) as cat_file:
+            content = cat_file.read().replace('\n', ' ').strip()
     except IOError as ex:
         print(ex, file=sys.stderr)
+        content = None
+
+    cat_cache[file_name] = content
+    return content
 
 
 def parse_command(command):
