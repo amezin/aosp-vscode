@@ -36,7 +36,7 @@ def cat_expand(match):
     return content
 
 
-def parse_command(command):
+def parse_command(command, file):
     while command:
         first_space = command.find(' ', 1)
         if (first_space == -1):
@@ -55,7 +55,7 @@ def parse_command(command):
     compdb.append({
         'directory': directory,
         'command': command,
-        'file': build_match.group('file')
+        'file': file
     })
     return True
 
@@ -84,14 +84,15 @@ with open(args.ninja_file) as ninja_file:
         if build_match:
             command = rules.get(build_match.group('rule'))
             if command:
+                file = build_match.group('file')
                 command = CAT_PATTERN.sub(cat_expand, command)
                 has_subcommands = False
                 for subcommand in SUBCOMMAND_PATTERN.finditer(command):
                     has_subcommands = True
-                    if parse_command(subcommand.group(1)):
+                    if parse_command(subcommand.group(1), file):
                         break
                 if not has_subcommands:
-                    parse_command(command)
+                    parse_command(command, file)
 
 with open('out/compile_commands.json', 'w') as compdb_file:
     json.dump(compdb, compdb_file, indent=1)
