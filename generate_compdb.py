@@ -81,18 +81,26 @@ with open(args.ninja_file) as ninja_file:
             continue
 
         build_match = BUILD_PATTERN.match(line)
-        if build_match:
-            command = rules.get(build_match.group('rule'))
-            if command:
-                file = build_match.group('file')
-                command = CAT_PATTERN.sub(cat_expand, command)
-                has_subcommands = False
-                for subcommand in SUBCOMMAND_PATTERN.finditer(command):
-                    has_subcommands = True
-                    if parse_command(subcommand.group(1), file):
-                        break
-                if not has_subcommands:
-                    parse_command(command, file)
+        if not build_match:
+            continue
+
+        command = rules.get(build_match.group('rule'))
+        if not command:
+            continue
+
+        file = build_match.group('file')
+        if file.endswith('.S'):  # Skip asm files
+            continue
+
+        command = CAT_PATTERN.sub(cat_expand, command)
+        has_subcommands = False
+        for subcommand in SUBCOMMAND_PATTERN.finditer(command):
+            has_subcommands = True
+            if parse_command(subcommand.group(1), file):
+                break
+
+        if not has_subcommands:
+            parse_command(command, file)
 
 with open('out/compile_commands.json', 'w') as compdb_file:
     json.dump(compdb, compdb_file, indent=1)
