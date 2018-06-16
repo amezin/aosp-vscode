@@ -3,7 +3,7 @@
         {
             "name": "Android",
             "intelliSenseMode": "clang-x64",
-            "compileCommands": "${workspaceFolder}/out/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
             "browse": {
                 "path": [
                     "${workspaceFolder}"

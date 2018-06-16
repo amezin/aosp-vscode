@@ -102,5 +102,5 @@ with open(args.ninja_file) as ninja_file:
         if not has_subcommands:
             parse_command(command, file)
 
-with open('out/compile_commands.json', 'w') as compdb_file:
+with open('compile_commands.json', 'w') as compdb_file:
     json.dump(compdb, compdb_file, indent=1)
